@@ -9,31 +9,31 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Sample location data (dummy GPS)
-let locationData = {
-  lat: 6.9271, // Example latitude (Colombo, Sri Lanka)
-  lon: 79.8612, // Example longitude
-  heading: 180, // Example heading
-};
+// Storage for Live GPS Data
+let locationData = { lat: null, lon: null, heading: null };
 
-// Route: Get current location
+// Route: Get Current GPS Location
 app.get("/get_location", (req, res) => {
-  res.json(locationData);
+  if (locationData.lat && locationData.lon) {
+    res.json(locationData);
+  } else {
+    res.status(404).json({ error: "No GPS data available yet." });
+  }
 });
 
-// Route: Update location data
+// Route: ESP32 Sends GPS Data
 app.post("/update_location", (req, res) => {
   const { lat, lon, heading } = req.body;
 
   if (lat && lon && heading) {
     locationData = { lat, lon, heading };
-    res.json({ message: "Location updated successfully!", locationData });
+    res.json({ message: "GPS data received!", locationData });
   } else {
-    res.status(400).json({ error: "Invalid data" });
+    res.status(400).json({ error: "Invalid GPS data format." });
   }
 });
 
-// Start server
+// Start Server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`API running on port ${PORT}`);
 });
